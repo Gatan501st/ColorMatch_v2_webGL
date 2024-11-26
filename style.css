@@ -1,0 +1,139 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif; /* Add a modern font */
+  background: linear-gradient(to bottom, #1e3c72, #2a5298); /* Gradient background */
+}
+
+/* Welcome Screen */
+#welcome-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed; /* Fixed ensures it stays on top of everything */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #1e3c72, #2a5298);
+  color: white;
+  z-index: 1000; /* High z-index to overlap the game */
+}
+
+#welcome-screen h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+#welcome-screen p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+#welcome-screen button {
+  margin: 0.5rem;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  color: #333;
+  background: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#welcome-screen button:hover {
+  background: #ddd;
+}
+
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent background for the UI container */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 250px;
+}
+
+#current-difficulty {
+  font-size: 18px;
+  color: #333; /* Match the color of the other text */
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+button, select {
+  padding: 10px;
+  font-size: 14px;
+  color: white;
+  background: #007bff; /* Blue button */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover, select:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active, select:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+#score, #lives {
+  font-size: 18px;
+  color: #333; /* Dark text for contrast */
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+select {
+  background: white;
+  color: black;
+}
+
+#game-over-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  z-index: 200; /* Ensure it's above the game area */
+}
+
+#game-over-screen button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  color: white;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#game-over-screen button:hover {
+  background: #0056b3;
+}
