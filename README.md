@@ -73,10 +73,12 @@ Power-ups are represented by actual objects in the game and have unique effects:
 ## **Project Structure**
 ```
 ColorMatch/
-├── index.html       # Main HTML file for the game
-├── script.js        # Contains game logic using Three.js
-├── style.css        # CSS styles for the UI
-└── assets/          # (Optional) Directory for additional assets (e.g., images, sounds)
+├── index.html          # Main HTML file for the game
+├── README.md           # Contains the README 
+├── requirements.txt    # Contains the requirements
+├── script.js           # Contains game logic using Three.js
+├── style.css           # CSS styles for the UI
+└── assets/             # (Optional) Directory for additional assets (e.g., images, sounds)
 ```
 
 ## **Requirements**
