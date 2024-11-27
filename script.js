@@ -223,7 +223,7 @@ function startGame(difficulty) {
   else if (difficulty === 'hard') [fallSpeed, spawnRate] = [0.2, 15];
 
   // Update the difficulty display
-  currentDifficultyDisplay.textContent = Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)};
+  currentDifficultyDisplay.textContent = `Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
 
   // Reset game variables
   score = 0;
