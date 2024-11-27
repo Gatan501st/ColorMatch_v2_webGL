@@ -55,6 +55,9 @@ Power-ups are represented by actual objects in the game and have unique effects:
 - **HTML5:** To structure the game interface.
 - **CSS3:** To style the game UI (e.g., buttons, score display).
 - **JavaScript:** For game logic, controls, and rendering.
+- **Apache:** Used as the web server for hosting the game.
+- **[Let's Encrypt](https://letsencrypt.org/):** For generating a free SSL certificate to secure the website.
+- **Azure:** The cloud platform used to host the website.
 
 ## **Setup and Installation**
 
