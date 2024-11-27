@@ -57,18 +57,23 @@ Power-ups are represented by actual objects in the game and have unique effects:
 - **JavaScript:** For game logic, controls, and rendering.
 
 ## **Setup and Installation**
+
 1. **Download the Project Files**:
    - Clone or download the repository.
 
-2. **Run a Local Server**:
-   - Using Python:
-     ```bash
-     python -m http.server
-     ```
-   - Or use any local server like XAMPP, WAMP, or Live Server for VS Code.
+2. **Run a Local Server (Optional)**:
+   - If you want to run the game locally, you can use the following:
+     - Using Python:
+       ```bash
+       python -m http.server
+       ```
+     - Or use any local server like XAMPP, WAMP, or Live Server for VS Code.
 
-3. **Access the Game**:
-   - Open your browser and navigate to `http://localhost:8000` (or the port displayed in your terminal).
+3. **Play the Game**:
+   - **Online**:
+     - Visit [https://colormatch.fun](https://colormatch.fun) to play the game directly in your browser.
+   - **Locally**:
+     - Open your browser and navigate to `http://localhost:8000` (or the port displayed in your terminal if running locally).
 
 ## **Project Structure**
 ```
