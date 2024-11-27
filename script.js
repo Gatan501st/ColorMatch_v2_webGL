@@ -43,6 +43,14 @@ const COLORS = [0xffff00, 0x0000ff, 0x00ff00, 0xff0000]; // Yellow and Blue
 let spawnRate = 30; // Frames between spawns
 let fallSpeed = 0.1;
 
+const POWERUP_COLORS = {
+  SLOW_DOWN: 0x00ff00, // Green for slow-down powerup
+  TIME_FREEZE: 0x00ffff // Undo the slow down powerup
+};
+const DEBUFF_COLORS = {
+  INSTANT_GAME_OVER: 0xff0000 // Red for instant game over
+};
+
 const textureLoader = new THREE.TextureLoader();
 
 // Game variables
