@@ -88,6 +88,10 @@ ColorMatch/
 
 ## **Requirements**
    - A modern web browser with WebGL support (e.g., Chrome, Firefox, Edge, Safari).
-   - A local server for testing (e.g., Python HTTP server, XAMPP, or Live Server for VS Code).
-   - Python 3.x
+   - For online play:
+     - A stable internet connection.
+     - Visit [https://colormatch.fun](https://colormatch.fun) in your browser.
+   - For local testing:
+     - A local server for testing (e.g., Python HTTP server, XAMPP, or Live Server for VS Code).
+     - Python 3.x (for running a local server).
 
