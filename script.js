@@ -43,6 +43,16 @@ const COLORS = [0xffff00, 0x0000ff]; // Yellow and Blue
 let spawnRate = 30; // Frames between spawns
 let fallSpeed = 0.1;
 
+
+const POWERUP_COLORS = {
+  SLOW_DOWN: 0x00ff00, // Green for slow-down powerup
+  TIME_FREEZE: 0x00ffff // Undo the slow down powerup
+};
+
+const DEBUFF_COLORS = {
+  INSTANT_GAME_OVER: 0xff0000 // Red for instant game over
+};
+
 // Game variables
 let isPaused = false;
 let score = 0;
@@ -55,10 +65,112 @@ const currentDifficultyDisplay = document.getElementById('current-difficulty');
 let velocity = 0;
 let maxSpeed = 0.1; // Controls the gliding speed
 let friction = 0.95; // Gradually slows down movement
-
+let powerups = [];
+let debuffs = [];
+let powerupSpawnRate = 300; // Frames between powerup spawns
+let debuffSpawnRate = 400; // Frames between debuff spawns
+let slowMotionActive = false;
+let slowMotionTimer = 0;
+const SLOW_MOTION_DURATION = 300; // Frames of slow motion
+const SLOW_MOTION_FACTOR = 0.5;
 // Color transition variables
 let targetColor = new THREE.Color(0xffff00); // Initial color
 let colorTransitionSpeed = 0.1; // Increase speed for seamless transitions
+
+
+// Create a powerup
+function createPowerup() {
+  const powerupGeometry = new THREE.PlaneGeometry(0.5, 0.5);
+  const randomPowerupType = Object.keys(POWERUP_COLORS)[Math.floor(Math.random() * Object.keys(POWERUP_COLORS).length)];
+  const powerupMaterial = new THREE.MeshBasicMaterial({ color: POWERUP_COLORS[randomPowerupType] });
+  const powerup = new THREE.Mesh(powerupGeometry, powerupMaterial);
+  powerup.type = randomPowerupType;
+
+  // Spawn within game area
+  const halfGameAreaWidth = gameAreaWidth / 2;
+  const objectHalfWidth = 0.25;
+  const xPosition = Math.random() * (halfGameAreaWidth - objectHalfWidth - (-halfGameAreaWidth + objectHalfWidth)) + 
+                    (-halfGameAreaWidth + objectHalfWidth);
+
+  powerup.position.set(xPosition, gameAreaHeight / 2, 0);
+  scene.add(powerup);
+  powerups.push(powerup);
+}
+
+// Create a debuff
+function createDebuff() {
+  const debuffGeometry = new THREE.PlaneGeometry(0.5, 0.5);
+  const debuffMaterial = new THREE.MeshBasicMaterial({ color: DEBUFF_COLORS.INSTANT_GAME_OVER });
+  const debuff = new THREE.Mesh(debuffGeometry, debuffMaterial);
+  debuff.type = 'INSTANT_GAME_OVER';
+
+  // Spawn within game area
+  const halfGameAreaWidth = gameAreaWidth / 2;
+  const objectHalfWidth = 0.25;
+  const xPosition = Math.random() * (halfGameAreaWidth - objectHalfWidth - (-halfGameAreaWidth + objectHalfWidth)) + 
+                    (-halfGameAreaWidth + objectHalfWidth);
+
+  debuff.position.set(xPosition, gameAreaHeight / 2, 0);
+  scene.add(debuff);
+  debuffs.push(debuff);
+}
+
+// Update powerups
+function updatePowerups() {
+  powerups.forEach((powerup, index) => {
+      powerup.position.y -= fallSpeed;
+
+      // Check for powerup collection
+      const distance = powerup.position.distanceTo(circle.position);
+      if (distance < 1) {
+          switch(powerup.type) {
+              case 'SLOW_DOWN':
+                  slowMotionActive = true;
+                  slowMotionTimer = SLOW_MOTION_DURATION;
+                  break;
+              case 'TIME_FREEZE':
+                  
+                  break;
+          }
+
+          // Remove collected powerup
+          scene.remove(powerup);
+          powerups.splice(index, 1);
+      }
+
+      // Remove if off screen
+      if (powerup.position.y < -gameAreaHeight / 2) {
+          scene.remove(powerup);
+          powerups.splice(index, 1);
+      }
+  });
+}
+
+// Update debuffs
+function updateDebuffs() {
+  debuffs.forEach((debuff, index) => {
+      debuff.position.y -= fallSpeed;
+
+      // Check for debuff collection
+      const distance = debuff.position.distanceTo(circle.position);
+      if (distance < 1) {
+          if (debuff.type === 'INSTANT_GAME_OVER') {
+              lives = 0; // Trigger game over
+          }
+
+          // Remove collected debuff
+          scene.remove(debuff);
+          debuffs.splice(index, 1);
+      }
+
+      // Remove if off screen
+      if (debuff.position.y < -gameAreaHeight / 2) {
+          scene.remove(debuff);
+          debuffs.splice(index, 1);
+      }
+  });
+}
+
 
 // Track active keys
 const keys = {}; 
@@ -223,29 +335,53 @@ function restartGame() {
   isPaused = true;
 }
 
-// Main animation loop
 function animate() {
-  if (!gameRunning) return; // Stop the animation loop if the game is not running
+  if (!gameRunning) return;
 
   if (!isPaused) {
-    frames++;
-    if (frames % spawnRate === 0) createObject();
-    updateFallingObjects();
-    updateCirclePosition();
-    updateCircleColor();
-    updateUI();
+      frames++;
+
+      // Handle slow motion
+      if (slowMotionActive) {
+          slowMotionTimer--;
+          if (slowMotionTimer <= 0) {
+              slowMotionActive = false;
+          }
+
+          // Reduce spawn and fall rates during slow motion
+          const slowSpawnRate = spawnRate * 2;
+          const slowFallSpeed = fallSpeed * SLOW_MOTION_FACTOR;
+
+          if (frames % slowSpawnRate === 0) createObject();
+          if (frames % powerupSpawnRate === 0) createPowerup();
+          if (frames % debuffSpawnRate === 0) createDebuff();
+          
+          // Use slow fall speed for objects
+          objects.forEach(obj => {
+              obj.position.y -= slowFallSpeed;
+          });
+      } else {
+          // Normal game speed
+          if (frames % spawnRate === 0) createObject();
+          if (frames % powerupSpawnRate === 0) createPowerup();
+          if (frames % debuffSpawnRate === 0) createDebuff();
+          updateFallingObjects();
+      }
+
+      updatePowerups();
+      updateDebuffs();
+      updateCirclePosition();
+      updateCircleColor();
+      updateUI();
   }
 
   if (lives <= 0 && !isPaused) {
-    document.getElementById('game-over-screen').style.display = 'flex';
-    document.getElementById('final-score').textContent = score;
-    isPaused = true;
-    gameRunning = false; // Stop the animation loop
+      document.getElementById('game-over-screen').style.display = 'flex';
+      document.getElementById('final-score').textContent = score;
+      isPaused = true;
+      gameRunning = false;
   }
 
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
-
-
-//animate();
