@@ -39,19 +39,11 @@ scene.add(circle);
 
 // Falling objects (squares)
 const objects = [];
-const COLORS = [0xffff00, 0x0000ff]; // Yellow and Blue
+const COLORS = [0xffff00, 0x0000ff, 0x00ff00, 0xff0000]; // Yellow and Blue
 let spawnRate = 30; // Frames between spawns
 let fallSpeed = 0.1;
 
-
-const POWERUP_COLORS = {
-  SLOW_DOWN: 0x00ff00, // Green for slow-down powerup
-  TIME_FREEZE: 0x00ffff // Undo the slow down powerup
-};
-
-const DEBUFF_COLORS = {
-  INSTANT_GAME_OVER: 0xff0000 // Red for instant game over
-};
+const textureLoader = new THREE.TextureLoader();
 
 // Game variables
 let isPaused = false;
@@ -80,18 +72,27 @@ let colorTransitionSpeed = 0.1; // Increase speed for seamless transitions
 
 // Create a powerup
 function createPowerup() {
-  const powerupGeometry = new THREE.PlaneGeometry(0.5, 0.5);
-  const randomPowerupType = Object.keys(POWERUP_COLORS)[Math.floor(Math.random() * Object.keys(POWERUP_COLORS).length)];
-  const powerupMaterial = new THREE.MeshBasicMaterial({ color: POWERUP_COLORS[randomPowerupType] });
+  const powerupType = Object.keys(POWERUP_COLORS)[Math.floor(Math.random() * Object.keys(POWERUP_COLORS).length)];
+  let textureURL;
+
+  if (powerupType === "SLOW_DOWN") {
+      textureURL = 'assets/stopwatch1.png'; // Path to your slow-down image
+  } else if (powerupType === "TIME_FREEZE") {
+      textureURL = 'assets/weather.png'; // Path to your time-freeze image
+  }
+
+  // Load the texture
+  const texture = textureLoader.load(textureURL);
+
+  // Create a plane with the texture
+  const powerupGeometry = new THREE.PlaneGeometry(0.8, 0.8);
+  const powerupMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
   const powerup = new THREE.Mesh(powerupGeometry, powerupMaterial);
-  powerup.type = randomPowerupType;
+  powerup.type = powerupType;
 
-  // Spawn within game area
+  // Position within the game area
   const halfGameAreaWidth = gameAreaWidth / 2;
-  const objectHalfWidth = 0.25;
-  const xPosition = Math.random() * (halfGameAreaWidth - objectHalfWidth - (-halfGameAreaWidth + objectHalfWidth)) + 
-                    (-halfGameAreaWidth + objectHalfWidth);
-
+  const xPosition = Math.random() * (halfGameAreaWidth - 0.25) - (halfGameAreaWidth - 0.25);
   powerup.position.set(xPosition, gameAreaHeight / 2, 0);
   scene.add(powerup);
   powerups.push(powerup);
@@ -99,21 +100,22 @@ function createPowerup() {
 
 // Create a debuff
 function createDebuff() {
-  const debuffGeometry = new THREE.PlaneGeometry(0.5, 0.5);
-  const debuffMaterial = new THREE.MeshBasicMaterial({ color: DEBUFF_COLORS.INSTANT_GAME_OVER });
+  const texture = textureLoader.load('assets/bomb.png'); // Path to your bomb image
+
+  // Create a plane with the texture
+  const debuffGeometry = new THREE.PlaneGeometry(0.8, 0.8);
+  const debuffMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
   const debuff = new THREE.Mesh(debuffGeometry, debuffMaterial);
   debuff.type = 'INSTANT_GAME_OVER';
 
-  // Spawn within game area
+  // Position within the game area
   const halfGameAreaWidth = gameAreaWidth / 2;
-  const objectHalfWidth = 0.25;
-  const xPosition = Math.random() * (halfGameAreaWidth - objectHalfWidth - (-halfGameAreaWidth + objectHalfWidth)) + 
-                    (-halfGameAreaWidth + objectHalfWidth);
-
+  const xPosition = Math.random() * (halfGameAreaWidth - 0.25) - (halfGameAreaWidth - 0.25);
   debuff.position.set(xPosition, gameAreaHeight / 2, 0);
   scene.add(debuff);
   debuffs.push(debuff);
 }
+
 
 // Update powerups
 function updatePowerups() {
@@ -177,6 +179,10 @@ const keys = {};
 
 window.addEventListener('keydown', (event) => {
   keys[event.key] = true;
+  if (event.key === ' ') {
+    // Change the target color randomly
+    targetColor.set(COLORS[Math.floor(Math.random() * COLORS.length)]);
+  }
 });
 
 window.addEventListener('keyup', (event) => {
@@ -210,8 +216,8 @@ restartButton.addEventListener('click', () => {
 // Welcome Screen Logic
 function startGame(difficulty) {
   // Set difficulty parameters
-  if (difficulty === 'easy') [fallSpeed, spawnRate] = [0.1, 50];
-  else if (difficulty === 'medium') [fallSpeed, spawnRate] = [0.15, 30];
+  if (difficulty === 'easy') [fallSpeed, spawnRate] = [0.1, 30];
+  else if (difficulty === 'medium') [fallSpeed, spawnRate] = [0.15, 20];
   else if (difficulty === 'hard') [fallSpeed, spawnRate] = [0.2, 15];
 
   // Update the difficulty display
@@ -258,25 +264,26 @@ function createObject() {
 }
 
 // Update falling objects
-function updateFallingObjects() {
+function updateFallingObjects(slowMotion = false) {
+  const currentFallSpeed = slowMotion ? fallSpeed * SLOW_MOTION_FACTOR : fallSpeed;
+
   objects.forEach((obj, index) => {
-    obj.position.y -= fallSpeed; // Move downward
-    if (obj.position.y < -gameAreaHeight / 2) {
-      objects.splice(index, 1); // Remove if it goes off-screen
-      scene.remove(obj);
-    }
+    obj.position.y -= currentFallSpeed; // Move downward
 
     // Collision detection
     const distance = obj.position.distanceTo(circle.position);
     if (distance < 1) {
-      if (obj.material.color.equals(circle.material.color)) {
-        score++; // Correct match
-      } else {
-        lives--; // Incorrect match
-      }
-      objects.splice(index, 1);
-      scene.remove(obj);
+    const objectColorHex = obj.material.color.getHex();
+    const targetColorHex = targetColor.getHex();
+
+    if (objectColorHex === targetColorHex) {
+      score++; // Correct match
+    } else {
+      lives--; // Incorrect match
     }
+    objects.splice(index, 1);
+    scene.remove(obj);
+  }
   });
 }
 
@@ -339,47 +346,44 @@ function animate() {
   if (!gameRunning) return;
 
   if (!isPaused) {
-      frames++;
+    frames++;
 
-      // Handle slow motion
-      if (slowMotionActive) {
-          slowMotionTimer--;
-          if (slowMotionTimer <= 0) {
-              slowMotionActive = false;
-          }
-
-          // Reduce spawn and fall rates during slow motion
-          const slowSpawnRate = spawnRate * 2;
-          const slowFallSpeed = fallSpeed * SLOW_MOTION_FACTOR;
-
-          if (frames % slowSpawnRate === 0) createObject();
-          if (frames % powerupSpawnRate === 0) createPowerup();
-          if (frames % debuffSpawnRate === 0) createDebuff();
-          
-          // Use slow fall speed for objects
-          objects.forEach(obj => {
-              obj.position.y -= slowFallSpeed;
-          });
-      } else {
-          // Normal game speed
-          if (frames % spawnRate === 0) createObject();
-          if (frames % powerupSpawnRate === 0) createPowerup();
-          if (frames % debuffSpawnRate === 0) createDebuff();
-          updateFallingObjects();
+    // Handle slow motion
+    if (slowMotionActive) {
+      slowMotionTimer--;
+      if (slowMotionTimer <= 0) {
+        slowMotionActive = false;
       }
 
-      updatePowerups();
-      updateDebuffs();
-      updateCirclePosition();
-      updateCircleColor();
-      updateUI();
+      // Reduce spawn and fall rates during slow motion
+      const slowSpawnRate = spawnRate * 2;
+
+      if (frames % slowSpawnRate === 0) createObject();
+      if (frames % powerupSpawnRate === 0) createPowerup();
+      if (frames % debuffSpawnRate === 0) createDebuff();
+
+      updateFallingObjects(true); // Pass true for slow motion
+    } else {
+      // Normal game speed
+      if (frames % spawnRate === 0) createObject();
+      if (frames % powerupSpawnRate === 0) createPowerup();
+      if (frames % debuffSpawnRate === 0) createDebuff();
+
+      updateFallingObjects(false); // Pass false for normal speed
+    }
+
+    updatePowerups();
+    updateDebuffs();
+    updateCirclePosition();
+    updateCircleColor();
+    updateUI();
   }
 
   if (lives <= 0 && !isPaused) {
-      document.getElementById('game-over-screen').style.display = 'flex';
-      document.getElementById('final-score').textContent = score;
-      isPaused = true;
-      gameRunning = false;
+    document.getElementById('game-over-screen').style.display = 'flex';
+    document.getElementById('final-score').textContent = score;
+    isPaused = true;
+    gameRunning = false;
   }
 
   renderer.render(scene, camera);
