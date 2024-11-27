@@ -189,6 +189,8 @@ const restartButton = document.getElementById('restart-btn');
 const difficultySelect = document.getElementById('difficulty');
 const scoreDisplay = document.getElementById('score');
 const livesDisplay = document.getElementById('lives');
+const highestScoreDisplay = document.getElementById("highestScoreDisplay");
+
 
 // Pause and resume functionality
 pauseButton.addEventListener('click', () => {
@@ -307,10 +309,28 @@ function updateCircleColor() {
   circle.material.color.lerp(targetColor, colorTransitionSpeed); // Interpolate towards target color
 }
 
+let highestScore = localStorage.getItem("highestScore") || 0;
+
 // Update UI
-function updateUI() {
-  scoreDisplay.innerHTML = `<strong>Score:</strong> ${score}`;
-  livesDisplay.innerHTML = `<strong>Lives:</strong> ${"❤️".repeat(lives)} ${"🖤".repeat(3 - lives)}`;
+
+  function updateUI() {
+
+    scoreDisplay.innerHTML = `<strong>Score:</strong> ${score}`;
+    livesDisplay.innerHTML = `<strong>Lives:</strong> ${"❤️".repeat(lives)} ${"🖤".repeat(3 - lives)}`;
+  
+    if (score > highestScore) {
+      highestScore = score; // Update the highest score
+      localStorage.setItem("highestScore", highestScore); // Save it to localStorage
+    }
+  highestScoreDisplay.innerHTML = `<strong>High Score:</strong> ${highestScore}`;
+
+}
+
+function resetHighScore() {
+  localStorage.removeItem("highestScore"); // Remove the high score from storage
+  highestScore = 0; // Reset the in-memory highest score
+  highestScoreDisplay.innerHTML = `<strong>Highest Score:</strong> ${highestScore}`; // Update the display
+  alert("High score has been reset!");
 }
 
 function restartGame() {
