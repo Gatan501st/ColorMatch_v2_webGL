@@ -61,8 +61,10 @@ Power-ups are represented by actual objects in the game and have unique effects:
 
 ## **Setup and Installation**
 
-1. **Download the Project Files**:
-   - Clone or download the repository.
+1. **Download or clone the repository**:
+   ```bash
+   git clone https://github.com/kanita04/ColorMatch_v2_webGL.git
+   ```
 
 2. **Run a Local Server (Optional)**:
    - If you want to run the game locally, you can use the following:
