@@ -97,4 +97,7 @@ ColorMatch/
    - For local testing:
      - A local server for testing (e.g., Python HTTP server, XAMPP, or Live Server for VS Code).
      - Python 3.x (for running a local server).
+    
+## **Slides**
+https://docs.google.com/presentation/d/1TurJFRMy9nIAsRhqCgNDHUOWxlTW5XmatDp59L113UY/edit?usp=sharing
 
